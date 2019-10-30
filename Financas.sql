@@ -18,10 +18,8 @@ CREATE TABLE cadastro_financeiro(
     DescCompra varchar(100),
     Valor real,
     LoginUsua varchar(50),
-    IdT integer,
     constraint cadastro_financeiro_PK primary key (NCadastro),
-    foreign key (LoginUsua) references USUARIO (Login),
-    foreign key (IdT) references TIPO (IdTipo)
+    foreign key (LoginUsua) references USUARIO (Login)
 );
 
 CREATE TABLE cadastro_financa_tem_tipo(
