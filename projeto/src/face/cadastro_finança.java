@@ -5,17 +5,66 @@
  */
 package face;
 
+import java.sql.*;
+import conection.ModuloConnection;
+import javax.swing.JOptionPane;
+import net.proteanit.sql.DbUtils;
+
 /**
  *
  * @author RIBEIRO
  */
 public class cadastro_finança extends javax.swing.JFrame {
 
+    Connection conexao = null;
+    PreparedStatement pst = null;
+    ResultSet rs = null;
+
     /**
      * Creates new form cadastro_finança
      */
     public cadastro_finança() {
         initComponents();
+        conexao = ModuloConnection.conector();
+    }
+
+    private void adicionar() {
+        String sql = "insert into cadastro_financeiro(DescricaoCompra, Valor) value(?, ?)";
+        try {
+            pst = conexao.prepareStatement(sql);
+            pst.setString(1, txtdescricao.getText());
+            pst.setString(2, txtvalor.getText());
+            //validaçao campos obrigatorio
+            if ((txtdescricao.getText().isEmpty()) || (txtvalor.getText().isEmpty())) {
+                JOptionPane.showMessageDialog(null, "Campo Obrigatorio!");
+            } else {
+                //linha abaixo atualiza a tabela usuario com os dados
+                //a linha abaixo eeh usada pra confirmar a inserçao dos dados
+                int adicionado = pst.executeUpdate();
+                if (adicionado > 0) {
+                    JOptionPane.showMessageDialog(null, "Cadastro com sucesso");
+                    txtdescricao.setText(null);
+                    txtvalor.setText(null);
+
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
+    }
+
+    //metodo pesquisa
+    private void pesquisar_cadastro() {
+        String sql = "select * from cadastro_financeiro where DescricaoCompra like ? or Valor = ?";
+        try {
+            pst = conexao.prepareStatement(sql);
+            pst.setString(1, txtdescricao.getText() + "%");
+            pst.setString(1, txtvalor.getText());
+            rs=pst.executeQuery();
+           // tabelaCadastro.setModel(DbUtils.resultSetToTableModel(rs));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
     }
 
     /**
@@ -29,15 +78,16 @@ public class cadastro_finança extends javax.swing.JFrame {
 
         jNovo = new javax.swing.JButton();
         jEditar = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtdescricao = new javax.swing.JTextField();
         jRemover = new javax.swing.JButton();
         jVoltar = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        txtvalor = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
+        lblUsuario = new javax.swing.JLabel();
+        txttempo = new javax.swing.JTextField();
+        tempo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -55,25 +105,11 @@ public class cadastro_finança extends javax.swing.JFrame {
             }
         });
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
-            },
-            new String [] {
-                "NUMERO CADASTRO", "DESCRIÇAO", "VALOR"
-            }
-        ));
-        jScrollPane1.setViewportView(jTable1);
-
         jLabel1.setText("DESCRIÇAO");
 
-        jTextField1.setText("Descriçao do Poduto");
-        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+        txtdescricao.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField1ActionPerformed(evt);
+                txtdescricaoActionPerformed(evt);
             }
         });
 
@@ -93,15 +129,24 @@ public class cadastro_finança extends javax.swing.JFrame {
 
         jLabel2.setText("VALOR");
 
-        jTextField2.setText("Valor do produto");
-        jTextField2.addActionListener(new java.awt.event.ActionListener() {
+        txtvalor.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextField2ActionPerformed(evt);
+                txtvalorActionPerformed(evt);
             }
         });
 
         jLabel5.setFont(new java.awt.Font("Arial Black", 1, 24)); // NOI18N
         jLabel5.setText("CADASTRO FINANÇAS");
+
+        lblUsuario.setText("Usuario");
+
+        txttempo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txttempoActionPerformed(evt);
+            }
+        });
+
+        tempo.setText("TEMPO");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -109,31 +154,31 @@ public class cadastro_finança extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addGap(28, 28, 28)
-                            .addComponent(jNovo)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jRemover)
-                            .addGap(26, 26, 26)
-                            .addComponent(jEditar)
-                            .addGap(18, 18, 18)
-                            .addComponent(jVoltar))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addContainerGap()
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 375, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addGap(28, 28, 28)
+                        .addComponent(jNovo)
+                        .addGap(31, 31, 31)
+                        .addComponent(jRemover)
+                        .addGap(26, 26, 26)
+                        .addComponent(jEditar)
+                        .addGap(18, 18, 18)
+                        .addComponent(jVoltar))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(40, 40, 40)
-                        .addComponent(jLabel5)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblUsuario)
+                            .addComponent(jLabel5)
+                            .addComponent(jLabel1)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(txtdescricao, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 323, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createSequentialGroup()
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(txtvalor, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel2))
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(tempo)
+                                        .addComponent(txttempo, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
                 .addContainerGap(15, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -141,17 +186,21 @@ public class cadastro_finança extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 88, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(lblUsuario)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel1)
                 .addGap(18, 18, 18)
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtdescricao, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(33, 33, 33)
+                    .addComponent(tempo))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtvalor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txttempo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 63, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jNovo)
                     .addComponent(jEditar)
@@ -164,16 +213,17 @@ public class cadastro_finança extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jNovoActionPerformed
-        // TODO add your handling code here:
+        //adicionando
+        adicionar();
     }//GEN-LAST:event_jNovoActionPerformed
 
     private void jEditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jEditarActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jEditarActionPerformed
 
-    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+    private void txtdescricaoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtdescricaoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField1ActionPerformed
+    }//GEN-LAST:event_txtdescricaoActionPerformed
 
     private void jRemoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRemoverActionPerformed
         // TODO add your handling code here:
@@ -187,9 +237,13 @@ public class cadastro_finança extends javax.swing.JFrame {
         this.dispose();
     }//GEN-LAST:event_jVoltarActionPerformed
 
-    private void jTextField2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField2ActionPerformed
+    private void txtvalorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtvalorActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextField2ActionPerformed
+    }//GEN-LAST:event_txtvalorActionPerformed
+
+    private void txttempoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txttempoActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txttempoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -233,10 +287,11 @@ public class cadastro_finança extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel5;
     private javax.swing.JButton jNovo;
     private javax.swing.JButton jRemover;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
     private javax.swing.JButton jVoltar;
+    public static javax.swing.JLabel lblUsuario;
+    private javax.swing.JLabel tempo;
+    private javax.swing.JTextField txtdescricao;
+    private javax.swing.JTextField txttempo;
+    private javax.swing.JTextField txtvalor;
     // End of variables declaration//GEN-END:variables
 }
